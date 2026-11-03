@@ -48,12 +48,54 @@ res-scout screened six candidates in [sources](./sources.md). Argo CD, Flux and 
 - FACT: *Generators* produce parameters that are substituted into a `template:`. Each rendered template becomes an Argo CD `Application` in the Argo CD namespace. Documented generators include List, Cluster (built from clusters registered in Argo CD), Git (files or directories) and Matrix (combines two generators), with more under the generators section ([ApplicationSet docs](../../external-sources/argocd-applicationset-docs.md)).
 - FACT: Changes to an ApplicationSet, including deletions, propagate to every Application it generated ([ApplicationSet docs](../../external-sources/argocd-applicationset-docs.md)).
 - FACT: The docs warn readers to "be aware of the security implications of ApplicationSets before using them" ([ApplicationSet docs](../../external-sources/argocd-applicationset-docs.md)). The security page itself was not ingested (TODO: needs source for the specific risks).
+- FACT (3.6 RC, 2026-09-16): there is a new **OCI generator**. It discovers directories and parses files inside an OCI artifact using the same include/exclude semantics as the Git generators, "so the teams who have moved their manifests … into an OCI registry no longer have to keep a Git repository around purely to drive ApplicationSet generation" ([Argo CD 3.6 RC blog](../../external-sources/argocd-v3-6-rc-blog.md)).
+- FACT (3.6 RC): **Progressive Sync** improvements:
+  - Owned Applications are refreshed before step decisions.
+  - New `--refresh-grace-period-seconds` flag.
+  - Four new Prometheus metrics labeled by namespace, AppSet and step.
+  - New `ApplicationSetRolloutError` and `InvalidRolloutConfig` reasons. Before this, a rollout that never started was reported as completed.
+  - Also new in 3.6: a `tpl` function in go-templates and workqueue rate-limiter flags. Previously retries were capped at about 16 minutes ([Argo CD 3.6 RC blog](../../external-sources/argocd-v3-6-rc-blog.md)).
+- OPINION: Progressive Sync gives Argo CD a basic ordered, multi-cluster rollout across generated Applications. It is not a promotion system: there's no artifact bundle and no per-stage verification gate in the sources read. The fact that 3.6 had to fix a case where a rollout that never began looked identical to a successful one suggests the feature was still maturing as of 3.5.
 - OPINION: Because edits and deletions fan out, an ApplicationSet has a wide blast radius. A bad template or a Git generator that matches the wrong directories can change or remove many Applications at once. Treat ApplicationSet manifests as privileged config and review them accordingly.
+
+### Argo CD 3.6 (RC) deltas relevant to the decision
+
+- FACT: Two controller memory changes, both described in the RC blog post published 2026-09-16:
+  - Label-based resource filtering (`resource.selectors` in `argocd-cm`) applies label selectors server-side, so non-matching objects never enter the cluster cache.
+  - Optional serialization and compression of cached manifests. In the blog's benchmark, controller memory went from 3.27 GB to under 1 GB, about 70% less, for about 2.5% more CPU. A second large instance saw about 30% savings ([Argo CD 3.6 RC blog](../../external-sources/argocd-v3-6-rc-blog.md)).
+- FACT: 3.6 also adds:
+  - A global Resources Explorer view that respects RBAC.
+  - Virtual scrolling in the UI for installs with many apps.
+  - A "rollback" RBAC action, disabled by default.
+  - A `hydrator_status` label on `argocd_app_info` for the Source Hydrator.
+  - A fix so server-side diff respects impersonation. Before the fix, the diff dry-run used the controller's own credentials ([Argo CD 3.6 RC blog](../../external-sources/argocd-v3-6-rc-blog.md)).
+- OPINION: The memory numbers come from the project's own benchmarks in an RC post, not from independent tests. Treat them as an upper bound until reproduced (see Requests for res-lab).
 
 ### Flux
 
 - FACT: Flux v2 is built from the GitOps Toolkit, "a set of composable APIs and specialized tools". The CRDs are grouped by controller: source (GitRepository, OCIRepository, HelmRepository, HelmChart, Bucket, ExternalArtifact, ArtifactGenerator), kustomize (Kustomization), helm (HelmRelease), notification (Provider, Alert, Receiver) and image automation (ImageRepository, ImagePolicy, ImageUpdateAutomation) ([Flux README](../../external-sources/argocd-flux2-readme.md)).
 - FACT: Flux v2 supports multi-tenancy and "syncing an arbitrary number of Git repositories" ([Flux README](../../external-sources/argocd-flux2-readme.md)).
+- FACT (v2.10.0, 2026-10-26):
+  - Object identity is GA.
+  - Inter-controller traffic uses SPIFFE mTLS.
+  - The notification APIs are promoted to `v1`.
+  - `HelmRelease` can take `OCIRepository` as a chart source.
+  - `ArtifactGenerator` gains cross-namespace artifacts and tenant namespace provisioning ([Flux v2.10.0 notes](../../external-sources/argocd-flux-v2-10-release-notes.md)).
+- FACT: v2.10.0 has these breaking changes ([Flux v2.10.0 notes](../../external-sources/argocd-flux-v2-10-release-notes.md)):
+  - The default RBAC no longer grants `create` on `serviceaccounts/token`. You must bind a ClusterRole before upgrading if you rely on the defaults.
+  - Converting notification `v1beta3` to `v1` drops several deprecated fields.
+  - The ImageRepository tag database switches to Flux artifact storage. This wipes the local tag DB and forces a full rescan. The old behaviour is kept with `--feature-gates=FluxStorage=false`.
+  - Remote-cluster auth renames the `audiences` key.
+
+### Kargo
+
+- FACT: Kargo calls itself "an unopinionated continuous promotion platform". It defines promotion as propagating changes to the *desired state* of each stage and leaves deployment "to a GitOps agent like Argo CD" ([Kargo core concepts](../../external-sources/argocd-kargo-core-concepts.md), docs.kargo.io, fetched 2026-11-03).
+- FACT: Kargo's terms, all from [Kargo core concepts](../../external-sources/argocd-kargo-core-concepts.md):
+  - **Stage**: a promotion target. It can be an environment, a set of microservices, or a whole cluster. Stages link together into a pipeline.
+  - **Freight**: a "meta-artifact" that references specific revisions of images, Helm charts and Git commits, so they move through the pipeline together.
+  - **Warehouse**: watches repositories and packages the latest revision of each artifact into new Freight.
+  - **Project**: the unit of tenancy, mapped to a Kubernetes namespace and governed by standard RBAC.
+- FACT: Akuity sells a hosted, managed and supported enterprise edition of Kargo ([Kargo README](../../external-sources/argocd-kargo-readme.md)). The README asks contributors to open an issue so they can engage the maintainers first.
 
 ## Architecture
 
