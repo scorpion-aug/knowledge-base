@@ -1,13 +1,13 @@
 ---
-title: "<Topic> — findings"
-description: "Concepts, architecture and trade-offs for <topic>."
+title: "Argo CD — findings"
+description: "Argo CD vs Flux as GitOps core, Kargo for promotion, ApplicationSet, and three image-update options compared."
 type: research-note
 status: draft
 date: 2026-11-03
 author: res-researcher
-cluster: <topic>
-tags: [research, provisional, research-team, findings, <topic>]
-sources: []
+cluster: argocd
+tags: [ research, provisional, research-team, findings, argocd, gitops, flux, kargo, kubernetes ]
+sources: [ { resource: ../../external-sources/argocd-argo-cd-readme.md }, { resource: ../../external-sources/argocd-architecture-docs.md }, { resource: ../../external-sources/argocd-applicationset-docs.md }, { resource: ../../external-sources/argocd-v3-6-rc-blog.md }, { resource: ../../external-sources/argocd-release-cadence-docs.md }, { resource: ../../external-sources/argocd-image-updater-readme.md }, { resource: ../../external-sources/argocd-flux2-readme.md }, { resource: ../../external-sources/argocd-flux-v2-10-release-notes.md }, { resource: ../../external-sources/argocd-flux-image-update-guide.md }, { resource: ../../external-sources/argocd-kargo-readme.md }, { resource: ../../external-sources/argocd-kargo-core-concepts.md } ]
 ---
 
 ## Question
@@ -205,6 +205,7 @@ OPINION (tentative, 2026-11-03):
 
 ## Related
 
-- [Sources](./sources.md)
-- [PoC](./poc/README.md)
-- [Report](./report.md)
+- [Sources](./sources.md): res-scout's candidate screen
+- PoC (`poc/README.md`, res-lab) and report (`report.md`, res-writer) don't exist yet. Link them once they do.
+- Preserved sources: [Argo CD README](../../external-sources/argocd-argo-cd-readme.md), [Argo CD architecture](../../external-sources/argocd-architecture-docs.md), [ApplicationSet docs](../../external-sources/argocd-applicationset-docs.md), [Argo CD 3.6 RC blog](../../external-sources/argocd-v3-6-rc-blog.md), [Argo CD release cadence](../../external-sources/argocd-release-cadence-docs.md), [Image Updater README](../../external-sources/argocd-image-updater-readme.md), [Flux README](../../external-sources/argocd-flux2-readme.md), [Flux v2.10.0 notes](../../external-sources/argocd-flux-v2-10-release-notes.md), [Flux image update guide](../../external-sources/argocd-flux-image-update-guide.md), [Kargo README](../../external-sources/argocd-kargo-readme.md), [Kargo core concepts](../../external-sources/argocd-kargo-core-concepts.md)
+- Capture caveats: architecture, Flux image guide, 3.6 blog and release-cadence pages are **partial** captures (noted at the top of each). Claims here use only the captured text.

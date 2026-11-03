@@ -20,7 +20,7 @@ type: research-note
 
 Screened Argo CD plus GitOps alternatives and complements (Flux, Kargo, Argo Rollouts, ApplicationSet, Argo CD Image Updater). The question: is Argo CD the right GitOps core, and which add-ons are worth deeper research? Search date: 2026-11-03. Health signals come from GitHub repo and release pages on that date. Star counts are a snapshot. "Commit activity" is based on release cadence only: no commit graph was pulled, so it is `unverified`.
 
-Next docs: `findings.md` (res-researcher) and `report.md` (res-writer). They aren't created yet; link them once they exist.
+Next docs: [findings](./findings.md) (res-researcher) and `report.md` (res-writer, not created yet).
 
 ## Candidates
 
