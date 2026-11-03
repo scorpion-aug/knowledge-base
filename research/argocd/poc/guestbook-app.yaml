@@ -1,0 +1,23 @@
+# PoC-0: single Application from a public repo, pinned to a commit, auto-sync + self-heal.
+# Upstream guestbook image gcr.io/google-samples/gb-frontend:v5 is linux/amd64-only; on arm64 hosts
+# override it via Argo CD's kustomize image override (multi-arch nginx, same port 80).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: guestbook
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    targetRevision: 8088f4c0d970abb09e250248cc97e35623447cb5   # master @ 2026-05-19
+    path: kustomize-guestbook
+    kustomize:
+      images:
+        - gcr.io/google-samples/gb-frontend=nginx:1.29.3-alpine
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: guestbook
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true]

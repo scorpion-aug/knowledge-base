@@ -1,0 +1,22 @@
+# Exercises source-controller object-level workload identity (needs serviceaccounts/token create).
+# The AWS account/role are fake (documentation values): only the error stage matters.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wi-test
+  namespace: default
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/fake-flux-poc
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: wi-test
+  namespace: default
+spec:
+  interval: 1m
+  url: oci://123456789012.dkr.ecr.us-east-1.amazonaws.com/poc/app
+  ref:
+    tag: latest
+  provider: aws
+  serviceAccountName: wi-test

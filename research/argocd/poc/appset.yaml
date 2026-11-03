@@ -1,0 +1,28 @@
+# PoC-0/PoC-1: one ApplicationSet, git directory generator over apps/* in the throwaway in-cluster gitea repo.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: synthetic
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: http://gitea.git.svc.cluster.local:3000/lab/gitops.git
+        revision: main
+        directories:
+          - path: apps/*
+  template:
+    metadata:
+      name: '{{.path.basename}}'
+    spec:
+      project: default
+      source:
+        repoURL: http://gitea.git.svc.cluster.local:3000/lab/gitops.git
+        targetRevision: main
+        path: '{{.path.path}}'
+      destination:
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        automated: {prune: true, selfHeal: true}
