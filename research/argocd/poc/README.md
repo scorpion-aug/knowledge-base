@@ -1,12 +1,12 @@
 ---
 title: "Argo CD — PoC"
-description: "Argo CD v3.5.6 on kind: Application + ApplicationSet auto-sync and self-heal (PASS); Flux 2.9.6 to 2.10.0 RBAC upgrade break (PASS); footprint (in progress)."
+description: "Argo CD v3.5.6 on kind: App + ApplicationSet auto-sync/self-heal PASS; Flux 2.10 RBAC break reproduced; footprint PARTIAL (Argo CD only)."
 type: research-note
 status: draft
 date: 2026-11-03
 author: res-lab
 cluster: argocd
-tags: [research, provisional, research-team, poc, argocd, gitops, flux, kubernetes, kind]
+tags: [ research, provisional, research-team, poc, argocd, gitops, flux, kubernetes, kind ]
 sources:
   - resource: ../../../external-sources/argocd-applicationset-docs.md
   - resource: ../../../external-sources/argocd-flux-v2-10-release-notes.md
@@ -31,7 +31,7 @@ Written in scratch `PLAN.md` before running.
 
 - **PoC-0: PASS.** 21/21 apps Synced/Healthy with no manual sync. All three drifts were reverted within about 1 s. One caveat: the upstream guestbook image is amd64-only, so on this arm64 host it needed an image override (see [Failures and workarounds](#failures-and-workarounds)).
 - **PoC-4: PASS (failure reproduced).** After the in-place upgrade, source-controller loses `serviceaccounts/token create`, and the object-identity `OCIRepository` fails with `forbidden`. Applying the extra ClusterRole/Binding restores token minting.
-- **PoC-1: in progress.** No numbers yet.
+- **PoC-1: PARTIAL.** Argo CD v3.5.6 with 20 apps used about 486 Mi working set at idle and about 590 Mi after a forced resync (total across 7 pods). The Flux run did not execute; it is waiting on owner approval to recreate the cluster.
 
 ## Environment and pinned versions
 
@@ -138,7 +138,26 @@ kubectl apply -f rbac-fix.yaml -> can-i = yes; error back at the STS stage (toke
 
 ## PoC-1 footprint status
 
-In progress: Argo CD idle sampling started 16:06 UTC (15 min idle, then 6×20 s samples; forced hard refresh of all 20, then 6×10 s samples). The Flux run on a fresh cluster is still to do. This section will hold the table. metrics-server reports working set, not RSS.
+**PARTIAL.** The Argo CD half is measured. The Flux half has not run: the command that recreates the cluster for it (`flux-phase.sh`, which runs `kind delete cluster` first) hit the approval gate, got no answer within 30 min, and did not execute. It needs owner approval to re-run.
+
+Method: same 20 apps (~1,000 objects, ~8 MB of ConfigMaps). Idle = 15 min after all 20 apps were Synced/Healthy, then 6 samples × 20 s. Forced resync = `argocd.argoproj.io/refresh=hard` on all 20, then 6 samples × 10 s. Numbers are from `kubectl top` (metrics-server). That is container **working set, not RSS**. The guestbook app had been removed, so exactly 20 apps were measured.
+
+| Argo CD v3.5.6 pod | idle CPU avg / max (m) | idle mem avg / max (Mi) | resync CPU avg / max (m) | resync mem avg / max (Mi) |
+|---|---|---|---|---|
+| application-controller | 32 / 99 | 322 / 328 | 254 / 492 | 398 / 477 |
+| repo-server | 3 / 8 | 45 / 47 | 23 / 95 | 73 / 97 |
+| applicationset-controller | 1 / 2 | 34 / 34 | 26 / 57 | 34 / 36 |
+| server | 2 / 2 | 25 / 25 | 2 / 7 | 26 / 26 |
+| dex-server | 1 / 2 | 28 / 28 | 1 / 1 | 28 / 28 |
+| notifications-controller | 1 / 1 | 25 / 25 | 2 / 4 | 26 / 28 |
+| redis | 6 / 7 | 6 / 7 | 6 / 7 | 6 / 7 |
+| **Total of averages** | **46** | **486** | **315** | **590** |
+
+Notes:
+
+- A first run (idle window 16:06–16:23 UTC) gave close totals: 486 Mi idle, 541 Mi resync. Its max columns were wrong: `sample.sh` compared numbers as strings in awk. The fixed script (numeric coercion) was used for the table above. The bad run's idle CPU average for the app-controller (129 m) was also much higher than the second run's (32 m). It likely caught tail work from the earlier drift and Git tests, so treat single-run CPU averages as noisy (unverified).
+- Single node, one run per state, 6 samples: an indication, not a benchmark.
+- Still to do: the Flux v2.10.0 run on a fresh cluster with the same repo (`flux-phase.sh` + `flux-apps.sh`, then `footprint.sh flux flux-system`). PoC-2 (3.6.0-rc4 compression) and PoC-3 (image update end to end) were not run in this session.
 
 ## Cleanup
 
@@ -158,7 +177,8 @@ These files sit next to this README. No secrets: the gitea password never leaves
 - `gen-apps.sh`: synthetic 20-app workload generator
 - `guestbook-app.yaml`, `appset.yaml`: PoC-0 manifests
 - `wi-test.yaml`, `rbac-fix.yaml`: PoC-4 manifests (fake AWS role ARN, documentation account id)
-- `footprint.sh`, `sample.sh`: PoC-1 measurement scripts
+- `footprint.sh`, `sample.sh`: PoC-1 measurement scripts (`sample.sh` with the numeric-max fix)
+- `flux-phase.sh`, `flux-apps.sh`: Flux half of PoC-1 (not yet run; `flux-phase.sh` deletes and recreates the `argocd` kind cluster)
 
 ApplicationSet git directory generator semantics: [ApplicationSet docs](../../../external-sources/argocd-applicationset-docs.md).
 
