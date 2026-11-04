@@ -1,0 +1,88 @@
+# Composition (mode: Pipeline) that bundles a Deployment + Service behind a
+# single namespaced App XR. The function-patch-and-transform step emits two
+# namespaced provider-kubernetes Object managed resources, each wrapping a
+# raw Kubernetes manifest.
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: apps.example.crossplane.io
+spec:
+  compositeTypeRef:
+    apiVersion: example.crossplane.io/v1alpha1
+    kind: App
+  mode: Pipeline
+  pipeline:
+    - step: app-bundle
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: deployment
+            base:
+              apiVersion: kubernetes.m.crossplane.io/v1alpha1
+              kind: Object
+              spec:
+                watch: true
+                providerConfigRef:
+                  kind: ProviderConfig
+                  name: kubernetes-provider
+                forProvider:
+                  manifest:
+                    apiVersion: apps/v1
+                    kind: Deployment
+                    metadata:
+                      name: my-app
+                      namespace: demo
+                      labels:
+                        example.crossplane.io/app: my-app
+                    spec:
+                      selector:
+                        matchLabels:
+                          example.crossplane.io/app: my-app
+                      template:
+                        metadata:
+                          labels:
+                            example.crossplane.io/app: my-app
+                        spec:
+                          containers:
+                            - name: app
+                              image: nginx:1.27-alpine
+                              ports:
+                                - containerPort: 80
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.replicas
+                toFieldPath: spec.forProvider.manifest.spec.replicas
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.image
+                toFieldPath: spec.forProvider.manifest.spec.template.spec.containers[0].image
+          - name: service
+            base:
+              apiVersion: kubernetes.m.crossplane.io/v1alpha1
+              kind: Object
+              spec:
+                watch: true
+                providerConfigRef:
+                  kind: ProviderConfig
+                  name: kubernetes-provider
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: Service
+                    metadata:
+                      name: my-app
+                      namespace: demo
+                      labels:
+                        example.crossplane.io/app: my-app
+                    spec:
+                      selector:
+                        example.crossplane.io/app: my-app
+                      ports:
+                        - port: 80
+                          targetPort: 80
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.port
+                toFieldPath: spec.forProvider.manifest.spec.ports[0].port

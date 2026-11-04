@@ -1,0 +1,14 @@
+# The namespaced composite resource (XR) the application team creates. In v2,
+# Crossplane-specific fields live under spec.crossplane.compositionRef.
+apiVersion: example.crossplane.io/v1alpha1
+kind: App
+metadata:
+  name: my-app
+  namespace: demo
+spec:
+  crossplane:
+    compositionRef:
+      name: apps.example.crossplane.io
+  replicas: 2
+  image: nginx:1.27-alpine
+  port: 80

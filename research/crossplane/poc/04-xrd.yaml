@@ -1,0 +1,33 @@
+# Namespaced Composite Resource Definition (v2 API). scope: Namespaced means
+# the XR lives in a namespace and composes resources in that same namespace.
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: apps.example.crossplane.io
+spec:
+  scope: Namespaced
+  group: example.crossplane.io
+  names:
+    kind: App
+    plural: apps
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                replicas:
+                  type: integer
+                image:
+                  type: string
+                port:
+                  type: integer
+              required:
+                - replicas
+                - image
+                - port

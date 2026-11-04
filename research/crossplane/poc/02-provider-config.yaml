@@ -1,0 +1,11 @@
+# Namespaced ProviderConfig (v2 style, group kubernetes.m.crossplane.io).
+# InjectedIdentity => the provider talks to the api-server of the cluster it
+# runs in, using its own ServiceAccount. No credentials file needed.
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: kubernetes-provider
+  namespace: demo
+spec:
+  credentials:
+    source: InjectedIdentity
