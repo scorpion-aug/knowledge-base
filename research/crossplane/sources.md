@@ -9,8 +9,8 @@ Topic: how to use Crossplane (github.com/crossplane/crossplane). Screened the co
 |---|---|---|---|---|---|---|---|---|---|
 | [crossplane/crossplane](https://github.com/crossplane/crossplane) | Core control-plane framework: XRs, compositions, function runtime, Operations, package manager, CLI | v2.4.3 (2026-10-22); v2.5 due Nov 2026 (README EOL table) | main merge 2026-11-02; 9,265 commits; 4 active release lines (v1.20/v2.2/v2.3/v2.4) | CNCF project; visible leads lsviben, jbw976, adamwg | Apache-2.0 | 12.2k stars, 1.3k forks; CNCF Graduated 2025-10-28 | dig deeper | Healthy; v1.20 EOL Nov 2026 makes v2-only guidance the right target | [README](../../external-sources/crossplane-core-readme.md), [v2 what's-new](../../external-sources/crossplane-v2-whats-new-docs.md) |
 | [Official docs v2.4](https://docs.crossplane.io/latest/) | Canonical usage path: Install, Control Plane Projects, Composition, Managed Resources, Operations quickstarts + guides | n/a (v2.4 latest; v2.3/2.2/1.20 kept) | n/a | Crossplane project | CC-BY-4.0 | only official doc set | dig deeper | Get Started defines the current v2 workflow: xpkg.crossplane.io packages, functions instead of native P&T | [Get Started index](https://docs.crossplane.io/latest/get-started/) (TODO: ingest), [v2 what's-new](../../external-sources/crossplane-v2-whats-new-docs.md) |
-
-Rows below continue after the docs row; cells marked unverified were not read from commit graphs or license files.
+| [Composition Functions](https://docs.crossplane.io/latest/packages/functions/) | v2 compositions are function pipelines; docs pin function-go-templating v0.9.2 and function-kro v0.3.0; patch-and-transform survives as a bundled function | versions pinned in v2.4 docs (2026-11-04) | unverified | crossplane-contrib plus SIG functions | Apache-2.0 (unverified) | required by core in v2: native pipeline removed | dig deeper | Biggest v1-to-v2 usage change; any guide must teach function composition | [v2 what's-new](../../external-sources/crossplane-v2-whats-new-docs.md) |
+ROWS-TMP continue after the docs row; cells marked unverified were not read from commit graphs or license files.
 
 ## Preserved sources
 
