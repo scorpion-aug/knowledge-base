@@ -25,3 +25,10 @@ Append-only audit trail. Add one dated entry per turn that creates, edits, or re
 - Crossplane v2.4.3 + provider-kubernetes v1.4.1 + fn-p&t v0.11.2 on kind: namespaced `App` XR composing a Deployment + Service through a Pipeline, InjectedIdentity (no cloud creds). create/update/delete all PASS; drift revert PARTIAL (whole-object + leaf-field drift self-heal in ~2-20s with `spec.watch:true`, but list-field `ports[]` drift under SSA errors with ReconcileError).
 - Files touched: [research/crossplane/poc/README](./research/crossplane/poc/README.md) plus `00-06` manifests in the same folder
 - Open follow-ups: confirmed the `upbound/provider-aws` repo 301-redirect (PoC-4 pin needs re-verification); the SSA list-field drift limitation (unverified whether a newer provider or non-alpha management-policy fixes it) could be re-checked.
+
+## 2026-11-04: crossplane report draft
+
+- res-writer drafted the crossplane report and one how-to guide from findings and the default PoC (status: draft, awaiting owner review). Recommendation is tentative: core XR loop works; provider-kubernetes `Object` drift handling is weak (10m default poll, list-field SSA error).
+- Files touched: [research/crossplane/report](./research/crossplane/report.md), [research/crossplane/guide-namespaced-xr-app](./research/crossplane/guide-namespaced-xr-app.md)
+- Sources ingested: none
+- Open follow-ups: PoC-2 to PoC-5 not run; direct-composition drift test; source for provider-kubernetes poll default and `watch` maturity; kind version mismatch in PoC record
