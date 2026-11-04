@@ -63,9 +63,13 @@ Written in scratch `PLAN.md` before running. **PASS iff ALL of:**
 
 Cluster: kind (`kubectl config current-context` = `kind-crossplane`).
 
+Note: the `kubectl` client (v1.37.1, a host tool) is several minors ahead of the
+v1.32.2 API server — a wider skew than usual. It did not affect any command in this
+PoC, but a reproduction should pin a client matching the node minor.
+
 Stale pins from `findings.md` corrected against upstream on 2026-11-04 (GitHub
 releases API): provider-kubernetes 1.0.0 → **1.4.1**, function-patch-and-transform
-0.8.2 → **0.11.2**, kind 0.20.0 → 0.33.0, Argo CD 2.13 → 3.6.0,
+0.8.2 → **0.11.2**, kind 0.20.0 (pin) → 0.33.0 (latest; the PoC actually ran on the already-installed 0.27.0 shown in the table), Argo CD 2.13 → 3.6.0,
 function-go-templating 0.9.2 → 0.13.2, and `upbound/provider-aws` repo is now
 301-redirected (PoC-4 pin unverifiable as-is).
 
