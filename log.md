@@ -19,3 +19,9 @@ Append-only audit trail. Add one dated entry per turn that creates, edits, or re
 - Files touched: [research/argocd/report](./research/argocd/report.md), [research/argocd/guide-bootstrap-argocd](./research/argocd/guide-bootstrap-argocd.md)
 - Sources ingested: none
 - Open follow-ups: Flux footprint run (needs owner approval), PoC-2 and PoC-3 not run, fluxcd/flux2#6139 not ingested, app-of-apps not covered
+
+## 2026-11-04: crossplane PoC (res-lab)
+
+- Crossplane v2.4.3 + provider-kubernetes v1.4.1 + fn-p&t v0.11.2 on kind: namespaced `App` XR composing a Deployment + Service through a Pipeline, InjectedIdentity (no cloud creds). create/update/delete all PASS; drift revert PARTIAL (whole-object + leaf-field drift self-heal in ~2-20s with `spec.watch:true`, but list-field `ports[]` drift under SSA errors with ReconcileError).
+- Files touched: [research/crossplane/poc/README](./research/crossplane/poc/README.md) plus `00-06` manifests in the same folder
+- Open follow-ups: confirmed the `upbound/provider-aws` repo 301-redirect (PoC-4 pin needs re-verification); the SSA list-field drift limitation (unverified whether a newer provider or non-alpha management-policy fixes it) could be re-checked.
