@@ -52,5 +52,5 @@ Captured for dig-deeper candidates (2026-11-04):
 
 Still to ingest (TODO): Get Started with Composition guide, function-patch-and-transform README.
 
-Related docs findings.md and report.md will be created by res-researcher and res-writer.
+Related docs: [findings](./findings.md) (res-researcher), report.md (res-writer, pending).
 
