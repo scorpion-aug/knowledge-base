@@ -1,13 +1,13 @@
 ---
-title: "<Topic> — findings"
-description: "Concepts, architecture and trade-offs for <topic>."
+title: "AI-native SDLC — findings"
+description: "Concepts, architecture and trade-offs for Anthropic's AI-native SDLC playbook vs Atlassian's platform framing and agent-agnostic spec-driven toolkits."
 type: research-note
 status: draft
 date: 2026-11-05
 author: res-researcher
-cluster: <topic>
-tags: [research, provisional, research-team, findings, <topic>]
-sources: []
+cluster: ai-native-sdlc
+tags: [ research, provisional, research-team, findings, ai-native-sdlc ]
+sources: [ { resource: ../../external-sources/ai-native-sdlc-claude-playbook.md }, { resource: ../../external-sources/ai-native-sdlc-coursera-course.md }, { resource: ../../external-sources/ai-native-sdlc-atlassian-playbook.md }, { resource: ../../external-sources/ai-native-sdlc-github-spec-kit.md }, { resource: ../../external-sources/ai-native-sdlc-github-rvbhavsar.md } ]
 ---
 
 ## Question
