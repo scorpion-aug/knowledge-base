@@ -91,27 +91,67 @@ OPINION: Architecturally this is an artifact-chain (intent → spec → code →
 
 ## Alternatives
 
+FACT: Three distinct families of "AI-native SDLC" framing exist in the captured sources:
+
+1. **Anthropic playbook (artifact-chain + agent harness).** Twelve plays across six stages, centered on `intent.md`/`spec.md`/`CLAUDE.md`/`REVIEW.md` artifacts, skills, hooks, and Claude Code execution surfaces ([Claude playbook](../../external-sources/ai-native-sdlc-claude-playbook.md), [Coursera](../../external-sources/ai-native-sdlc-coursera-course.md)).
+
+2. **Atlassian playbook (platform + context graph).** Same diagnosis, but the remedy is platform investment — a context graph (Teamwork Graph), measurement, systems of record — with workflow shifts layered on top. Agent-agnostic in principle, Atlassian-product-backed in the "approach" column ([Atlassian playbook](../../external-sources/ai-native-sdlc-atlassian-playbook.md)).
+
+3. **Spec-driven development toolkits (agent-agnostic, repo-local).** GitHub's Spec Kit (142,928 stars, MIT, created 2025-08-21) operationalizes SDD as agent-chat commands (`/speckit-specify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`, `/speckit-converge`) with a per-project constitution, plus bug-fixing and idea-assessment extensions; integrations for multiple coding agents ([Spec Kit](../../external-sources/ai-native-sdlc-github-spec-kit.md)). The rvbhavsar community playbook is a stricter, governance-first variant: only the first three stages, every stage ending in an explicit human Approve/Revise/Pause gate, approval bound to exact artifact versions and repo revisions ([rvbhavsar playbook](../../external-sources/ai-native-sdlc-github-rvbhavsar.md)).
+
+FACT: The artifact vocabulary converges across vendors and community: Anthropic's `intent.md`/`spec.md`/`plan.md` appears nearly verbatim in the rvbhavsar playbook (`intent.md` → `spec.md` → `plan.md` with approval gates) and as Spec Kit's specify/plan/tasks flow ([rvbhavsar playbook](../../external-sources/ai-native-sdlc-github-rvbhavsar.md), [Spec Kit](../../external-sources/ai-native-sdlc-github-spec-kit.md)).
+
+OPINION: The convergence on intent/spec/plan markdown artifacts across Anthropic, an independent community author, and GitHub's toolkit suggests this artifact shape is becoming a de facto standard — more durable than any single vendor's playbook. Anthropic's differentiators are the execution-side plays (hooks, parallel worktrees, eval loops, maintain-stage control bands); its plan/design artifacts are the commoditized part.
+
 ## Trade-offs
 
 | Option | Pros | Cons | Operating cost | Lock-in risk |
 |---|---|---|---|---|
+| Anthropic AI-native SDLC (as published) | Concrete, stage-by-stage plays with worked config (hooks JSON, prompts); covers all six stages incl. maintain-loop; governance via hooks + managed settings aimed at regulated enterprises | Claude-only surfaces assumed (Claude Code, skills, hooks, Agent SDK, Claude Security); several referenced products are beta or hosted (Claude Design beta, Claude Security on "Claude Mythos 5"); Test-stage detail thin in public article | Highest: agent sessions, CI eval suites, MCP connections to systems of record, hosted scanning | High: artifacts are portable markdown, but hooks, skills, subagents, and review integrations are Claude-harness-specific |
+| Atlassian platform approach | Addresses the context problem Anthropic assumes away (agents need org-wide context, not just repo files); vendor claims 44% accuracy gain / 48% token reduction with context graph (internal benchmark, unverified) | Requires consolidating work activity into systems of record (read: Atlassian's); measurement platform prerequisite; playbook detail lives in a gated PDF | High platform investment before workflow shifts pay off | High: Teamwork Graph is proprietary; Jira/Confluence/Loom-centric |
+| Spec Kit / community spec-driven toolkits | Agent-agnostic (integrations for Copilot, Claude, others); MIT; huge adoption (142.9k stars); smallest-change adoption path ("you do not have to replace the whole process") | Covers specify→implement, not the full six-stage lifecycle; no deploy/maintain plays; governance is template-level, not enforced hooks | Low: CLI + repo-local files; no hosted dependency | Low: markdown artifacts, per-project overrides, swappable agent integrations |
+
+FACT (row 1 con): The playbook itself flags managed-settings trade-offs: "Every deny trades against capability, and the right balance depends on the data classification of the repo" ([Claude playbook](../../external-sources/ai-native-sdlc-claude-playbook.md)).
+
+FACT (row 2 pro/con): The 44%/48% figures are "internal benchmarks" reported by Atlassian with no published methodology ([Atlassian playbook](../../external-sources/ai-native-sdlc-atlassian-playbook.md)). Treat as vendor-reported.
 
 ## Migration path
 
+FACT: All sources argue for incremental adoption, not a big-bang replacement. Spec Kit: "Start with the smallest change that meets your needs; you do not have to replace the whole process" ([Spec Kit](../../external-sources/ai-native-sdlc-github-spec-kit.md)). The rvbhavsar playbook is adoption-gated by design: begin with `intent.md` only, "do not populate downstream artifacts as if they were approved" ([rvbhavsar playbook](../../external-sources/ai-native-sdlc-github-rvbhavsar.md)).
+
+FACT: The Anthropic playbook's implied sequence is stage-wise: start capturing `intent.md`, add `spec.md` generation, then build plays (`CLAUDE.md`, skills, parallel sessions), then test feedback loops, then deploy gates, and only last the autonomous maintain loop — the maintain stage is explicitly the stage where "no person [is] in the invocation path" ([Claude playbook](../../external-sources/ai-native-sdlc-claude-playbook.md), [Coursera](../../external-sources/ai-native-sdlc-coursera-course.md)).
+
+FACT: A realistic hybrid is directly supported by the sources: keep Jira/ServiceNow as source of truth (Anthropic's own legacy-systems play says to) while piloting markdown artifacts as working copies ([Claude playbook](../../external-sources/ai-native-sdlc-claude-playbook.md)).
+
+OPINION: Sensible order for a team evaluating this: (1) pilot `intent.md`/`spec.md` artifacts on one team with any agent; (2) add the build-stage hygiene (`CLAUDE.md` or equivalent, single-command test target); (3) only then evaluate vendor-specific gates (hooks, managed settings) and the maintain-stage autonomous loop, which is the highest-risk play and the least independently validated.
+
 ## Conflicting sources
+
+FACT: **Where the control plane should live.** Anthropic puts enforcement in the agent harness (hooks in `.claude/settings.json`, managed settings) ([Claude playbook](../../external-sources/ai-native-sdlc-claude-playbook.md)); Atlassian puts it in the platform/data layer ("Governance and permissions are enforced at the data layer, so what a person can see is exactly what an agent can act on") ([Atlassian playbook](../../external-sources/ai-native-sdlc-atlassian-playbook.md)); the community playbook puts it in process (human approval gates between stages, approval bound to artifact versions) ([rvbhavsar playbook](../../external-sources/ai-native-sdlc-github-rvbhavsar.md)). These are complementary in theory but imply different primary investments.
+
+FACT: **Test stage.** Anthropic's stage table replaces "QA gates at stage boundaries" with "continuous evals woven through implementation" ([Claude playbook](../../external-sources/ai-native-sdlc-claude-playbook.md)), while the community playbook retains hard stage gates with human approval before implementation ([rvbhavsar playbook](../../external-sources/ai-native-sdlc-github-rvbhavsar.md)). Not a direct contradiction (gates at different points), but a real philosophical difference on pre- vs post-build verification.
+
+FACT: **Capture gaps in the primary source.** The web article's Test stage section was not captured by extraction (JS-rendered page); Test-stage claims here rely on the Coursera module listing, which is consistent with the stage table but is a secondary summary ([Coursera](../../external-sources/ai-native-sdlc-coursera-course.md)). Mark Test-stage detail as partially verified.
 
 ## Open questions
 
+- Does the maintain-stage closed loop (breached control band → diagnosis → new `intent.md` with no human in the invocation path) work safely in production? Only Anthropic's own material describes it; no third-party validation was found. (TODO: needs source)
+- Are the claimed productivity effects measured anywhere with methodology? Atlassian cites "19% more PRs and 2–3 hours saved per developer per week" and "93% of developers use AI tools / ~30% of code is AI-authored" but the underlying study was not captured ([Atlassian playbook](../../external-sources/ai-native-sdlc-atlassian-playbook.md)).
+- How much of the playbook is Claude-harness-specific vs portable? Skills/hooks/subagents appear Claude-specific; the artifact chain appears portable (adopted by Spec Kit and the community playbook), but a portability matrix was not verified against Claude Code docs.
+- The playbook's downloadable PDF version was not fetched — it may contain the full Test-stage plays and worked examples the web extraction missed.
+
 ## Requests for res-lab
 
-- Question: … | Success criterion: … | Pinned versions: …
+- Question: Can a minimal intent→spec→plan artifact chain with human approval gates be run end-to-end on a scratch repo using only portable markdown files (no vendor harness), per the rvbhavsar playbook's three-skill model? | Success criterion: `intent.md` → `spec.md` → `plan.md` produced for a toy feature, each gated by an explicit recorded approval, with the artifacts committed to git | Pinned versions: rvbhavsar/ai-native-sdlc-playbook @ commit 05c54cc (2026-09-15); Python 3.11+ if its scripts are exercised.
+- Question: Does GitHub Spec Kit's SDD flow (`/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` → `/speckit-converge`) reach `Converged` on a toy feature, and how does its artifact set map to Anthropic's `intent.md`/`spec.md`? | Success criterion: documented run on a scratch project with the resulting `.specify/` tree and a mapping table between the two artifact vocabularies | Pinned versions: specify-cli latest release at run time (record exact version; repo at 235 releases as of 2026-11-05), Python 3.11+, uv.
 
 ## Tentative recommendation
 
-OPINION: …
+OPINION: Treat the Anthropic playbook as the most operationally detailed public description of where agent-centric delivery is heading, but adopt it in layers: the intent/spec artifact chain (portable, corroborated by Spec Kit and the community playbook) first; build-stage hygiene (`CLAUDE.md`-style memory, single-command feedback loops) second; vendor-specific enforcement (hooks, managed settings) only if already committed to Claude Code; and the autonomous maintain loop last, if ever, pending independent validation. The Atlassian platform framing is the more defensible long-term diagnosis (context is the bottleneck), but its remedy is a bigger, more lock-in-heavy bet.
 
 ## Related
 
 - [Sources](./sources.md)
-- [PoC](./poc/README.md)
-- [Report](./report.md)
+- PoC: not yet created — see Requests for res-lab above (will land at `research/ai-native-sdlc/poc/README.md`)
+- Report: not yet created — res-writer will draft `research/ai-native-sdlc/report.md` from this findings doc
+- Sibling research: [Crossplane — findings](../crossplane/findings.md) (same FACT/OPINION findings format on this team)
