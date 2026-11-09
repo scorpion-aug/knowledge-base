@@ -17,6 +17,8 @@ sources:
   - resource: ../../external-sources/k8s-cost-monitoring-opencost-cncf.md
   - resource: ../../external-sources/k8s-cost-monitoring-krr-readme.md
   - resource: ../../external-sources/k8s-cost-monitoring-goldilocks-readme.md
+  - resource: ../../external-sources/k8s-cost-monitoring-kubectl-cost-readme.md
+  - resource: ../../external-sources/k8s-cost-monitoring-kube-resource-report-repo.md
 ---
 > **Draft, screen level only.** Built from [sources.md](./sources.md) and the preserved sources it cites. This topic has no findings.md and no PoC (the owner said a PoC is not needed), so nothing here was installed or measured. Every fact below comes from a project README, tag page or the CNCF page, all fetched 2026-11-09. Open items are under [Gaps](#gaps).
 
@@ -65,7 +67,7 @@ The definitions below are standard Kubernetes background; the preserved sources 
 
 ### Not covered
 
-Kubecost (marked "watch" because the license of its free-tier product is unverified) and Kepler ("skip": it measures energy, not money) were screened out. The reasons are in [sources.md](./sources.md).
+Kubecost (marked "watch" because the license of its free-tier product is unverified) and Kepler ("skip": it measures energy, not money) were screened out. A follow-up screen added kubectl-cost ("watch": an Apache-2.0 CLI that queries Kubecost or OpenCost cost APIs, not a cost engine itself, last release 2024-09-26 ([kubectl-cost](../../external-sources/k8s-cost-monitoring-kubectl-cost-readme.md))) and kube-resource-report ("skip": GPL-3.0, no commits since 2023-02-09, node pricing only for on-demand AWS EC2 and GKE ([kube-resource-report](../../external-sources/k8s-cost-monitoring-kube-resource-report-repo.md))). Neither changes the recommendation. The reasons are in [sources.md](./sources.md).
 
 ## Trade-offs
 
