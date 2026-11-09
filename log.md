@@ -32,3 +32,10 @@ Append-only audit trail. Add one dated entry per turn that creates, edits, or re
 - Files touched: [research/crossplane/report](./research/crossplane/report.md), [research/crossplane/guide-namespaced-xr-app](./research/crossplane/guide-namespaced-xr-app.md)
 - Sources ingested: none
 - Open follow-ups: PoC-2 to PoC-5 not run; direct-composition drift test; source for provider-kubernetes poll default and `watch` maturity; kind version mismatch in PoC record
+
+## 2026-11-09: k8s-cost-monitoring report draft
+
+- res-writer drafted a screen-level report comparing OpenCost, Robusta KRR and Goldilocks (status: draft, no findings or PoC). Only OpenCost tracks costs; KRR and Goldilocks recommend CPU/memory settings. Tentative recommendation: OpenCost, plus KRR for right-sizing.
+- Files touched: [research/k8s-cost-monitoring/report](./research/k8s-cost-monitoring/report.md)
+- Sources ingested: none
+- Open follow-ups: KRR/Goldilocks install prerequisites; OpenCost allocation accuracy vs cloud bill; preserved Kubernetes docs for requests/limits and VPA; optional PoC
