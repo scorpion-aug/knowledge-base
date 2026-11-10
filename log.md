@@ -39,3 +39,10 @@ Append-only audit trail. Add one dated entry per turn that creates, edits, or re
 - Files touched: [research/k8s-cost-monitoring/report](./research/k8s-cost-monitoring/report.md)
 - Sources ingested: none
 - Open follow-ups: KRR/Goldilocks install prerequisites; OpenCost allocation accuracy vs cloud bill; preserved Kubernetes docs for requests/limits and VPA; optional PoC
+
+## 2026-11-10: composio-alternatives report draft
+
+- res-writer drafted the Composio alternatives report from findings and sources (status: draft, no PoC). It covers fit by use case, a parity matrix against Composio, license caveats (Activepieces is open-core) and 2 residual open questions on per-user OAuth. Tentative recommendation: ContextForge for governance, Activepieces for its catalog, Docker MCP Gateway for dev isolation; none of them replaces per-user managed OAuth.
+- Files touched: [research/composio-alternatives/report](./research/composio-alternatives/report.md)
+- Sources ingested: none
+- Open follow-ups: Activepieces per-user OAuth; ContextForge plugin coverage for OAuth token storage; Docker catalog size; Metorial license conversion date
