@@ -60,6 +60,8 @@ Only 3 of the 3-5 allowed were selected; the rest fail on licence, freshness or 
 
 ## Preserved sources
 
+Downstream: [findings](./findings.md) (RESEARCH-11).
+
 - [Composio baseline](../../external-sources/composio-alternatives-composio-baseline.md)
 - [IBM ContextForge](../../external-sources/composio-alternatives-contextforge.md)
 - [Activepieces](../../external-sources/composio-alternatives-activepieces.md)

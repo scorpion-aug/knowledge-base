@@ -1,13 +1,13 @@
 ---
-title: "<Topic> — findings"
-description: "Concepts, architecture and trade-offs for <topic>."
+title: "Composio alternatives — findings"
+description: "ContextForge, Activepieces and Docker MCP Gateway vs Composio: architecture, connectors, OAuth, MCP, governance, license caveats, parity matrix."
 type: research-note
 status: draft
 date: 2026-11-10
 author: res-researcher
-cluster: <topic>
-tags: [research, provisional, research-team, findings, <topic>]
-sources: []
+cluster: composio-alternatives
+tags: [ composio-alternatives, findings, provisional, research, research-team ]
+sources: [ { resource: ../../external-sources/composio-alternatives-composio-baseline.md }, { resource: ../../external-sources/composio-alternatives-contextforge.md }, { resource: ../../external-sources/composio-alternatives-contextforge-readme.md }, { resource: ../../external-sources/composio-alternatives-activepieces.md }, { resource: ../../external-sources/composio-alternatives-activepieces-pricing.md }, { resource: ../../external-sources/composio-alternatives-activepieces-install.md }, { resource: ../../external-sources/composio-alternatives-docker-mcp-gateway.md }, { resource: ../../external-sources/composio-alternatives-docker-mcp-gateway-readme.md }, { resource: ../../external-sources/composio-alternatives-metamcp.md }, { resource: ../../external-sources/composio-alternatives-arcade-mcp.md }, { resource: ../../external-sources/composio-alternatives-license-exclusions.md } ]
 ---
 
 ## Question
@@ -90,25 +90,64 @@ Watch-list and excluded candidates from the screen, for completeness:
 
 ## Trade-offs
 
+### Feature-parity matrix vs Composio
+
+Legend: ✅ present per source · ⚠️ partial / DIY · ❌ absent or not stated · Sources in the Architecture section rows above.
+
+| Composio capability (baseline: [Composio baseline](../../external-sources/composio-alternatives-composio-baseline.md)) | ContextForge | Activepieces (self-host Community) | Docker MCP Gateway |
+|---|---|---|---|
+| Pre-built SaaS connector catalog (Composio: 1000+) | ❌ none stated; virtualize your own REST/gRPC | ✅ ~400 pieces as MCP servers (repo); "770+" in marketing copy — see Conflicting sources | ⚠️ Docker MCP Catalog + OCI/registry/local refs; catalog size unverified |
+| Managed OAuth for SaaS tools (consent, token refresh) | ⚠️ user-scoped OAuth tokens + OBO token-exchange hook; per-app registration/refresh DIY | ⚠️ connections model; Global connections Team-tier+; per-user OAuth not described (unverified) | ⚠️ built-in OAuth flows for OAuth-capable MCP servers; local secrets, no vault stated |
+| Per-user / multi-tenant sessions (Composio `user_id`) | ⚠️ user-scoped tokens, but no connected-account store shown | ❌ not described in fetched sources | ❌ single-tenant workstation shape (OPINION) |
+| MCP endpoint for any client | ✅ fully compliant MCP server, multi-transport | ✅ pieces auto-exposed as MCP servers | ✅ single gateway endpoint; stdio/sse/streaming |
+| Native agent-framework adapters (OpenAI/LangChain/Vercel etc.) | ⚠️ A2A + OpenAI-compatible/Anthropic routing; MCP for the rest | ❌ MCP + API/SDK only (per pricing table) | ❌ MCP only |
+| Triggers / event automation | ❌ not stated | ✅ flows/automation engine (core product) | ❌ not stated |
+| Sandbox / code execution | ❌ not stated | ❌ not stated | ⚠️ container isolation of servers (isolation, not a code sandbox) |
+| Governance (RBAC, audit logs, policy) | ✅ guardrails, plugins, rate-limit, OTel observability | ❌ Community: none; SSO/RBAC/audit paid (Team/Ultimate) | ❌ none stated |
+| Self-host, OSI license end-to-end | ✅ Apache-2.0 | ⚠️ MIT core; EE dirs require paid subscription in production | ✅ MIT |
+
+### Options table
+
 | Option | Pros | Cons | Operating cost | Lock-in risk |
 |---|---|---|---|---|
+| ContextForge | Apache-2.0 end-to-end; strongest governance/observability; REST/gRPC virtualization; K8s-scale federation ([ContextForge README](../../external-sources/composio-alternatives-contextforge-readme.md)) | No connector catalog; per-SaaS OAuth lifecycle DIY; young project (created 2025-05-08, 4.8k stars) ([ContextForge repo](../../external-sources/composio-alternatives-contextforge.md)) | One Python process + Redis (multi-cluster); mandatory secrets bootstrap; PyPI/Docker/Helm/Ansible artifacts | Low license lock-in; moderate API-surface lock-in to its plugin/registry model (OPINION) |
+| Activepieces | Only OSI-core catalog (~400-770 pieces); MCP exposure free even on Free tier; simple Compose/Helm self-host ([Activepieces repo](../../external-sources/composio-alternatives-activepieces.md), [install docs](../../external-sources/composio-alternatives-activepieces-install.md)) | Open-core: SSO, RBAC, audit logs, secret managers, private pieces, global connections all paid; per-user OAuth model unverified; EE production use requires subscription ([Activepieces pricing](../../external-sources/composio-alternatives-activepieces-pricing.md)) | Compose: app + PostgreSQL + Redis; Helm for K8s; license-key activation step for EE | Moderate: EE features create upgrade pressure; MIT core forkable (OPINION) |
+| Docker MCP Gateway | MIT; Docker-backed release cadence (v0.44.3, 2026-10-26); container isolation + Desktop secrets; catalog extensible via OCI/registry/local ([Docker MCP Gateway repo](../../external-sources/composio-alternatives-docker-mcp-gateway.md), [README](../../external-sources/composio-alternatives-docker-mcp-gateway-readme.md)) | No governance/RBAC/audit; no SaaS credential vault stated; catalog size unverified; Docker Desktop dependency for secrets ergonomics | Docker daemon + CLI plugin; per-server containers | Low license lock-in; ecosystem pull toward Docker Desktop/Hub (OPINION) |
 
 ## Migration path
 
+From Composio, per use case (OPINION, grounded in the FACT rows above):
+
+1. **Replace the MCP endpoint only** (tools already exist as MCP servers or internal APIs): stand up ContextForge or Docker MCP Gateway, re-point agent clients from `session.mcp.url` to the gateway endpoint. ContextForge if you need governance/observability; Docker MCP Gateway if you want container isolation and the Docker catalog.
+2. **Replace the connector catalog**: adopt Activepieces self-host; rebuild the Composio toolkits you use as Activepieces pieces/connections; expose to agents over its MCP servers. Budget for the paid tier if you need SSO/audit/global connections.
+3. **Replace per-user OAuth**: hardest gap. ContextForge's OBO token-exchange plugin hook is the only shipped primitive; otherwise build a small token-vault service (OPINION) or revisit Nango/Metorial if the license posture ever changes.
+4. **Hybrid** (likely the realistic path, OPINION): Activepieces for catalog + ContextForge in front for governance/routing, Docker MCP Gateway for local-dev tool isolation.
+
 ## Conflicting sources
+
+- **Activepieces catalog size:** the repo description captured 2026-11-10 cites "~400 MCP servers" ([Activepieces repo](../../external-sources/composio-alternatives-activepieces.md)); the pricing page's Embed tier copy says "770+ integrations" ([Activepieces pricing](../../external-sources/composio-alternatives-activepieces-pricing.md)). Likely different counts (pieces-as-MCP-servers vs total integrations marketed), not a true contradiction — but the exact current count is unverified. Treat "~400 MCP-exposed pieces" as the conservative figure.
+- **Docker MCP Gateway latest-commit CI:** the repo capture shows the 2026-10-26 commit's CI check as failure while releases kept tagging (v0.44.3 same day) ([Docker MCP Gateway repo](../../external-sources/composio-alternatives-docker-mcp-gateway.md)). Recorded as a freshness caveat, not a correctness claim.
+- **Composio self-hostability:** the baseline source notes the MIT SDK but no self-hostable backend shown; marked unverified beyond the fetched pages ([Composio baseline](../../external-sources/composio-alternatives-composio-baseline.md)).
+- **ContextForge README truncation:** the ContextForge README capture is head+tail (~15k of ~40.7k chars); Installation/Configuration/Cloud-deployment sections are missing, so config-level claims rely on the captured overview/quickstart only ([ContextForge README](../../external-sources/composio-alternatives-contextforge-readme.md)).
 
 ## Open questions
 
+- Does Activepieces self-host Community support per-end-user OAuth delegation (Composio-style connected accounts), or only owner-level connections? (TODO: needs source)
+- How large is the default Docker MCP Catalog, and how many servers ship with OAuth support? (unverified in fetched text)
+- Does Composio offer any self-host/VPC option not visible on the fetched pages? (unverified)
+- ContextForge: what do the 40+ plugins cover — is there a community plugin for SaaS OAuth token stores? (TODO: needs source)
+- Metorial's FSL→Apache-2.0 conversion date (in the omitted part of its license text) — when does it become OSI-usable? ([license evidence](../../external-sources/composio-alternatives-license-exclusions.md))
+
 ## Requests for res-lab
 
-- Question: … | Success criterion: … | Pinned versions: …
+None — owner said no PoC this round.
 
 ## Tentative recommendation
 
-OPINION: …
+OPINION: There is no drop-in OSI replacement for Composio today; pick by use case. For an engineering team that mainly needs to govern and federate internal APIs/MCP servers for agents, **ContextForge** is the strongest single choice (Apache-2.0, governance, observability, OBO hook). For a team whose pain is connector breadth for business-SaaS tools, **Activepieces self-host** is the only OSI-core catalog — but price in the Team/Ultimate tiers if SSO/audit/global connections are required. **Docker MCP Gateway** is the best fit for developer-local tool isolation and a clean MCP endpoint with minimal moving parts. The realistic end-state is hybrid: Activepieces (catalog) behind ContextForge (governance), with Docker MCP Gateway on dev workstations. If per-user managed OAuth at scale is the hard requirement and licenses are negotiable, re-open the Nango/Metorial conversation — they remain the closest functional matches ([license evidence](../../external-sources/composio-alternatives-license-exclusions.md)).
 
 ## Related
 
 - [Sources](./sources.md)
-- [PoC](./poc/README.md)
-- [Report](./report.md)
+- PoC: not requested this round (owner decision; no poc/ folder)
+- Report: pending — written by res-writer as the next step (report.md does not exist yet)
